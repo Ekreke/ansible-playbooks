@@ -1,0 +1,7 @@
+---
+registry_mirrors:
+  - https://docker.1panel.live
+  - https://docker.agsv.top
+  - https://docker.agsvpt.work
+  - https://dockerpull.com
+  - https://dockerproxy.cn

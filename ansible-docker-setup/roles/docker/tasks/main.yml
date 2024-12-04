@@ -1,0 +1,53 @@
+---
+# 安装依赖包
+- name: Install required packages
+  apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+    state: present
+    update_cache: yes
+
+# 添加 Docker GPG 密钥
+- name: Add Docker GPG key
+  shell: |
+    curl -fsSL https://download.docker.com/linux/$(. /etc/os-release && echo "$ID")/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  args:
+    warn: false
+
+# 添加 Docker 仓库
+- name: Add Docker repository
+  shell: |
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/$(. /etc/os-release && echo "$ID") $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list
+
+# 更新 apt 缓存
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+# 安装 Docker
+- name: Install Docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+
+# 配置 daemon.json
+- name: Configure daemon.json
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+
+# 重启 Docker 服务
+- name: Restart Docker
+  systemd:
+    name: docker
+    state: restarted
+    enabled: true

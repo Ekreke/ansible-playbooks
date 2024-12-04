@@ -1,0 +1,5 @@
+- name: Deploy Loki and Promtail with Docker
+  hosts: all
+  become: yes
+  roles:
+    - loki

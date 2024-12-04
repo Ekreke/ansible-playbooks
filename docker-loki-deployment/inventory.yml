@@ -1,0 +1,14 @@
+all:
+  hosts:
+    machine1:
+      ansible_host: 192.168.1.101
+    machine2:
+      ansible_host: 192.168.1.102
+  vars:
+    loki_version: "2.9.0"
+    promtail_version: "2.9.0"
+    loki_port: 3100
+    promtail_port: 9080
+    docker_data_dir: /data
+    promtail_targets:
+      - localhost

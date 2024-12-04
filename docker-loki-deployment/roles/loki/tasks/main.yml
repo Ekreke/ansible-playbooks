@@ -1,0 +1,55 @@
+ - name: Install Docker
+  ansible.builtin.package:
+    name: docker.io
+    state: present
+
+- name: Start Docker service
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Pull Loki image
+  ansible.builtin.docker_image:
+    name: grafana/loki
+    tag: "{{ loki_version }}"
+
+- name: Pull Promtail image
+  ansible.builtin.docker_image:
+    name: grafana/promtail
+    tag: "{{ promtail_version }}"
+
+- name: Deploy Loki container
+  ansible.builtin.docker_container:
+    name: loki
+    image: grafana/loki:{{ loki_version }}
+    state: started
+    restart_policy: always
+    ports:
+      - "{{ loki_port }}:3100"
+    volumes:
+      - "{{ docker_data_dir }}/loki:/etc/loki"
+    command: -config.file=/etc/loki/loki-config.yml
+
+- name: Deploy Promtail container
+  ansible.builtin.docker_container:
+    name: promtail
+    image: grafana/promtail:{{ promtail_version }}
+    state: started
+    restart_policy: always
+    ports:
+      - "{{ promtail_port }}:9080"
+    volumes:
+      - "{{ docker_data_dir }}/promtail:/etc/promtail"
+      - /var/log:/var/log
+    command: -config.file=/etc/promtail/promtail-config.yml
+
+- name: Copy Loki configuration file
+  ansible.builtin.template:
+    src: templates/loki-config.yml.j2
+    dest: "{{ docker_data_dir }}/loki/loki-config.yml"
+
+- name: Copy Promtail configuration file
+  ansible.builtin.template:
+    src: templates/promtail-config.yml.j2
+    dest: "{{ docker_data_dir }}/promtail/promtail-config.yml"

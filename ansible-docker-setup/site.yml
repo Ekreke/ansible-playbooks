@@ -1,0 +1,5 @@
+---
+- name: Setup Docker and configure registry mirrors
+  hosts: all
+  roles:
+    - docker
