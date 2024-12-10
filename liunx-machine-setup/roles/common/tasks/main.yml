@@ -1,0 +1,125 @@
+---
+# TODO: gopath && gobin && goroot && protoc 
+# TODO: vim & vimrc
+
+# Ensuere Python 3 is installed
+- name: Install Python3 if not installed
+  raw: |
+        if ! command -v python3 >/dev/null 2>&1; then
+          apt update && apt install -y python3 python3-apt;
+        fi
+
+# ensure pip3 installed
+- name: Ensure pip3 is installed
+  raw: |
+    if ! command -v pip3 >/dev/null 2>&1; then
+      apt update && apt install -y python3-pip;
+    fi
+
+# use setup gather facts
+- name: Gather facts after Python3 and pip3 installation
+  ansible.builtin.setup:
+
+# Install required packages
+- name: Ensure required packages are installed
+  apt:
+    name:
+      - cloc
+      - tree
+    state: present
+    update_cache: yes
+
+# Install Go 1.22 using curl
+- name: Download Go 1.22 using curl
+  ansible.builtin.shell: >
+    curl -L "https://go.dev/dl/go1.22.10.linux-amd64.tar.gz" -o "/tmp/go1.22.tar.gz"
+
+- name: Verify Go tarball exists
+  ansible.builtin.stat:
+    path: "/tmp/go1.22.tar.gz"
+  register: go_tarball
+
+- name: Fail if Go tarball download failed
+  ansible.builtin.fail:
+    msg: "Failed to download Go 1.22 tarball."
+  when: not go_tarball.stat.exists
+
+- name: Extract Go 1.22
+  ansible.builtin.unarchive:
+    src: "/tmp/go1.22.tar.gz"
+    dest: "/usr/local/"
+    remote_src: yes
+
+- name: Ensure Go binary is in PATH
+  lineinfile:
+    path: "/etc/profile"
+    line: "export PATH=/usr/local/go/bin:$PATH"
+    state: present
+
+- name: Source profile to update PATH immediately
+  ansible.builtin.shell: >
+    . /etc/profile
+  args:
+    executable: /bin/bash
+
+    
+- name: Update software sources and upgrade packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+  become: true
+- name: Install Zsh, Git, and Curl
+  apt:
+    name:
+      - zsh
+      - git
+      - curl
+    state: present
+  become: true
+
+- name: Change default shell to Zsh
+  shell: chsh -s /bin/zsh "{{ target_user }}"
+  become: true
+
+- name: Install Oh-My-Zsh
+  shell: |
+    sh -c "$(curl -fsSL https://gitee.com/pocmon/ohmyzsh/raw/master/tools/install.sh)" "" --unattended
+  args:
+    creates: "/home/{{ target_user }}/.oh-my-zsh"
+  become_user: "{{ target_user }}"
+
+- name: Configure Zsh with cloud theme
+  copy:
+    src: "{{ role_path }}/templates/zshrc.j2"
+    dest: "/home/{{ target_user }}/.zshrc"
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: "0644"
+
+- name: Append ZSH environment variable to .zshrc
+  lineinfile:
+    path: "/home/{{ target_user }}/.zshrc"
+    line: 'export ZSH="/home/{{ target_user }}/.oh-my-zsh"'
+    state: present
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: "0644"
+  become: true
+
+- name: Verify Zsh configuration
+  shell: zsh -c "echo $ZSH"
+  become_user: "{{ target_user }}" 
+
+
+- name: Apply .bashrc
+  copy: 
+    src: "{{ role_path }}/templates/bashrc.j2"
+    dest: "/home/{{ target_user }}/.bashrc"
+    owner: "{{ target_user }}"
+    group: "{{ target_user }}"
+    mode: "0644"
+  become: true
+
+
+
+

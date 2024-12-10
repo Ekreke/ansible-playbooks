@@ -1,0 +1,34 @@
+# Common aliases
+alias ll='ls -al'
+alias v='vim'
+alias cls='clear'
+alias mkdir='mkdir -p'
+alias d='docker'
+alias c='cat'
+alias h='history'
+alias s='source'
+
+# Git aliases
+alias gba='git branch -a'
+alias gc='git checkout'
+
+# Docker aliases
+alias dps='docker ps'
+alias dis='docker images'
+
+# Kubernetes aliases
+alias k='kubectl'
+alias kgp='kubectl get pods'
+alias kgn='kubectl get nodes'
+alias kgd='kubectl get deployments'
+alias kdeld='kubectl delete deployment'
+alias kdd='kubectl delete deployment'
+alias kd='kubectl describe'
+
+# Add Go to PATH
+export PATH=/usr/local/go/bin:$PATH
+
+# Start zsh if standard output is a terminal
+if [ -t 1 ]; then
+  exec zsh
+fi
