@@ -1,2 +1,2 @@
 [all]
-localhost ansible_connection=local
+148.135.91.165 ansible_user=ubuntu ansible_password=eXJLodw4iV507F4eL5
