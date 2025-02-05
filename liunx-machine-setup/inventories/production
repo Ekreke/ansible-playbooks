@@ -1,2 +1,2 @@
 [all]
-148.135.91.165 ansible_user=ubuntu ansible_password=eXJLodw4iV507F4eL5
+<ip> ansible_user=<server username> ansible_password=<server password>

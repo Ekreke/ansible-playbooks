@@ -1,0 +1,8 @@
+.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# Ignore all .vscode settings
+.vscode/settings.json
