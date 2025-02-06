@@ -1,2 +1,0 @@
-[all]
-<ip> ansible_user=<server username> ansible_password=<server password>
